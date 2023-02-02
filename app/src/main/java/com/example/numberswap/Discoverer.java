@@ -144,8 +144,8 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
             new EndpointDiscoveryCallback() {
                 @Override
                 public void onEndpointFound(@NonNull String endpointId, @NonNull DiscoveredEndpointInfo info) {
-                    Toast.makeText(Discoverer.this, "Found hehe", Toast.LENGTH_SHORT).show();
-                    Log.d("moja", "onEndpointFound: ");
+                  
+
                     // An endpoint was found. We request a connection to it.
                     if(devices==null)
                     {
@@ -153,7 +153,7 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
                     }
                     Devices availableDevice = new Devices(endpointId,info.getEndpointName());
                     devices.add(availableDevice);
-                    nearbyDevices.setText(devices.size()+ " Devices Found");
+
                     Adapter adapter = new Adapter(devices,Discoverer.this);
                     recyclerView.setAdapter(adapter);
                     adapter.notifyDataSetChanged();
@@ -223,6 +223,7 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
                             break;
                         case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                             // The connection was rejected by one or both sides.
+                            Toast.makeText(Discoverer.this, "Rejected", Toast.LENGTH_SHORT).show();
                             break;
                         case ConnectionsStatusCodes.STATUS_ERROR:
                             // The connection broke before it was able to be accepted.

@@ -30,22 +30,57 @@ import com.google.android.gms.nearby.messages.NearbyPermissions;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String[] REQUIRED_PERMISSIONS;
+    static {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            REQUIRED_PERMISSIONS =
+                    new String[] {
+                            Manifest.permission.BLUETOOTH_SCAN,
+                            Manifest.permission.BLUETOOTH_ADVERTISE,
+                            Manifest.permission.BLUETOOTH_CONNECT,
+                            Manifest.permission.ACCESS_WIFI_STATE,
+                            Manifest.permission.CHANGE_WIFI_STATE,
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                    };
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            REQUIRED_PERMISSIONS =
+                    new String[] {
+                            Manifest.permission.BLUETOOTH,
+                            Manifest.permission.BLUETOOTH_ADMIN,
+                            Manifest.permission.ACCESS_WIFI_STATE,
+                            Manifest.permission.CHANGE_WIFI_STATE,
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                    };
+        } else {
+            REQUIRED_PERMISSIONS =
+                    new String[] {
+                            Manifest.permission.BLUETOOTH,
+                            Manifest.permission.BLUETOOTH_ADMIN,
+                            Manifest.permission.ACCESS_WIFI_STATE,
+                            Manifest.permission.CHANGE_WIFI_STATE,
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                    };
+        }
+    }
 
+    private static final int REQUEST_CODE_REQUIRED_PERMISSIONS = 1;
     EditText text;
     Button send,receive;
     TextView receivedText;
 
     ArrayList<String> permissions;
 
-    private final int requestCodePermissions = 1001;
-
-    String [] askForPermissions =
-            {Manifest.permission.ACCESS_COARSE_LOCATION,
-        Manifest.permission.BLUETOOTH,
-        Manifest.permission.BLUETOOTH_ADMIN,
-        Manifest.permission.ACCESS_WIFI_STATE,
-        Manifest.permission.CHANGE_WIFI_STATE,
-        Manifest.permission.ACCESS_FINE_LOCATION};
+//    private final int requestCodePermissions = 1001;
+//
+//    String [] askForPermissions =
+//            {Manifest.permission.ACCESS_COARSE_LOCATION,
+//        Manifest.permission.BLUETOOTH,
+//        Manifest.permission.BLUETOOTH_ADMIN,
+//        Manifest.permission.ACCESS_WIFI_STATE,
+//        Manifest.permission.CHANGE_WIFI_STATE,
+//        Manifest.permission.ACCESS_FINE_LOCATION};
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
@@ -57,29 +92,41 @@ public class MainActivity extends AppCompatActivity {
         receive = findViewById(R.id.button2);
         receivedText = findViewById(R.id.receivedText);
 
-        permissions = new ArrayList<>();
-        permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-        permissions.add(Manifest.permission.BLUETOOTH);
-        permissions.add(Manifest.permission.BLUETOOTH_ADMIN);
-        permissions.add(Manifest.permission.ACCESS_WIFI_STATE);
-        permissions.add(Manifest.permission.CHANGE_WIFI_STATE);
-        permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+//        permissions = new ArrayList<>();
+//        permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+//        permissions.add(Manifest.permission.BLUETOOTH);
+//        permissions.add(Manifest.permission.BLUETOOTH_ADMIN);
+//        permissions.add(Manifest.permission.ACCESS_WIFI_STATE);
+//        permissions.add(Manifest.permission.CHANGE_WIFI_STATE);
+//        permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
        // permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
 
-        statusCheck();
-        if(allPermissionsGranted())
-        {
-            Log.d("moja", "All Permissions are Granted!");
-            Intent intent = new Intent(this,Discoverer.class);
-           // startActivity(intent);
-        }
-        else
-        {
-            ActivityCompat.requestPermissions(this,askForPermissions,requestCodePermissions);
-            Toast.makeText(this, "No", Toast.LENGTH_SHORT).show();
-        }
+//        statusCheck();
+//        if(allPermissionsGranted())
+//        {
+//            Log.d("moja", "All Permissions are Granted!");
+//            Intent intent = new Intent(this,Discoverer.class);
+//           // startActivity(intent);
+//        }
+//        else
+//        {
+//            ActivityCompat.requestPermissions(this,askForPermissions,requestCodePermissions);
+//            Toast.makeText(this, "No", Toast.LENGTH_SHORT).show();
+//        }
         //Intent intent = new Intent(this,Discoverer.class);
         //startActivity(intent);
+
+        if (!hasPermissions(this, getRequiredPermissions())) {
+            if (Build.VERSION.SDK_INT < 23) {
+                ActivityCompat.requestPermissions(
+                        this, getRequiredPermissions(), REQUEST_CODE_REQUIRED_PERMISSIONS);
+            } else {
+                requestPermissions(getRequiredPermissions(), REQUEST_CODE_REQUIRED_PERMISSIONS);
+            }
+        }
+
+
+
         send.setOnClickListener(v->
         {
             Log.d("moja", "clicked");
@@ -132,5 +179,35 @@ public class MainActivity extends AppCompatActivity {
                 });
         final AlertDialog alert = builder.create();
         alert.show();
+    }
+    public static boolean hasPermissions(Context context, String... permissions) {
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(context, permission)
+                    != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+    protected String[] getRequiredPermissions() {
+        return REQUIRED_PERMISSIONS;
+    }
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_CODE_REQUIRED_PERMISSIONS) {
+            int i = 0;
+            for (int grantResult : grantResults) {
+                if (grantResult == PackageManager.PERMISSION_DENIED) {
+                    Log.d("moja", "Failed to request the permission " + permissions[i]);
+                    Toast.makeText(this, " "+ permissions[i]+" Not Granted", Toast.LENGTH_LONG).show();
+                    finish();
+                    return;
+                }
+                i++;
+            }
+            recreate();
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
