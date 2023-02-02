@@ -1,11 +1,24 @@
 package com.example.numberswap;
 
+import static android.content.Context.BLUETOOTH_SERVICE;
+
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.provider.Settings;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
@@ -23,35 +36,58 @@ import com.google.android.gms.nearby.connection.Strategy;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
-public class Advertiser {
+public class Advertiser extends Activity {
     String message;
     ConnectionsClient connectionsClient;
     Context context;
+
     public static final Strategy STRATEGY = Strategy.P2P_CLUSTER;
     public static final String SERVICE_ID = "6969";
-    private static final String deviceName = "com.example.numberswap";
+    private static String deviceName = "com.example.numberswap";
 
-    public Advertiser(Context context,String message) {
+    ArrayList<Devices> listOfDevices = new ArrayList<>();
+
+    public void setListOfDevices(ArrayList<Devices> listOfDevices) {
+        this.listOfDevices = listOfDevices;
+    }
+
+    public Advertiser(Context context, String message) {
         this.context = context;
         connectionsClient = Nearby.getConnectionsClient(context);
         this.message = message;
     }
 
+    public Advertiser(Context context, ArrayList<Devices> listOfDevices) {
+        this.context = context;
+        this.listOfDevices = listOfDevices;
+        Toast.makeText(context, "Number of Devices : "+listOfDevices.size(), Toast.LENGTH_SHORT).show();
+    }
+
     private final PayloadCallback mPayloadCallback = new PayloadCallback() {
         @Override
         public void onPayloadReceived(@NonNull String s, @NonNull Payload payload) {
-            final   byte[] receivedBytes = payload.asBytes();
-            String message = new String(receivedBytes,StandardCharsets.UTF_8);
-            Log.d("moja", "Recieved Message: "+ message);
+            final byte[] receivedBytes = payload.asBytes();
+            String message = new String(receivedBytes, StandardCharsets.UTF_8);
+            Log.d("moja", "Recieved Message: " + message);
         }
 
         @Override
         public void onPayloadTransferUpdate(@NonNull String s, @NonNull PayloadTransferUpdate payloadTransferUpdate) {
         }
     };
-   public void startAdvertising() {
+
+    public void startAdvertising() {
+
+        final BluetoothManager manager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            context.startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
+        }
+        deviceName = (manager.getAdapter().getName());
+
         AdvertisingOptions advertisingOptions =
                 new AdvertisingOptions.Builder().setStrategy(STRATEGY).build();
         Nearby.getConnectionsClient(context)
@@ -60,36 +96,39 @@ public class Advertiser {
                 .addOnSuccessListener(
                         (Void unused) -> {
                             Log.d("moja", "We're advertising!");// We're advertising!
+                            Toast.makeText(context, "We're advertising!", Toast.LENGTH_SHORT).show();
                         })
                 .addOnFailureListener(
                         (Exception e) -> {
+                            Toast.makeText(context, "We're advertising!", Toast.LENGTH_SHORT).show();
                             Log.d("moja", "We were unable to start advertising.\n"+e.getMessage());   // We were unable to start advertising.
                         });
     }
-    private final EndpointDiscoveryCallback endpointDiscoveryCallback =
-            new EndpointDiscoveryCallback() {
-                @Override
-                public void onEndpointFound(@NonNull String endpointId, @NonNull DiscoveredEndpointInfo info) {
-                    // An endpoint was found. We request a connection to it.
-                    Nearby.getConnectionsClient(context)
-                            .requestConnection(deviceName, endpointId, connectionLifecycleCallback)
-                            .addOnSuccessListener(
-                                    (Void unused) -> {
-                                        // We successfully requested a connection. Now both sides
-                                        // must accept before the connection is established.
-                                        Log.d("moja", "checking for end point");
-                                    })
-                            .addOnFailureListener(
-                                    (Exception e) -> {
-                                        // Nearby Connections failed to request the connection.
-                                        Log.d("moja", "Error checking for end point\n "+ e.getMessage());
-                                    });
-                }
-                @Override
-                public void onEndpointLost(@NonNull String endpointId) {
-                    // A previously discovered endpoint has gone away.
-                }
-            };
+//    private final EndpointDiscoveryCallback endpointDiscoveryCallback =
+//            new EndpointDiscoveryCallback() {
+//                @Override
+//                public void onEndpointFound(@NonNull String endpointId, @NonNull DiscoveredEndpointInfo info) {
+//                    // An endpoint was found. We request a connection to it.
+//                    deviceNames.add(info.getEndpointName());
+//                    Nearby.getConnectionsClient(context)
+//                            .requestConnection(deviceName, endpointId, connectionLifecycleCallback)
+//                            .addOnSuccessListener(
+//                                    (Void unused) -> {
+//                                        // We successfully requested a connection. Now both sides
+//                                        // must accept before the connection is established.
+//                                        Log.d("moja", "checking for end point");
+//                                    })
+//                            .addOnFailureListener(
+//                                    (Exception e) -> {
+//                                        // Nearby Connections failed to request the connection.
+//                                        Log.d("moja", "Error checking for end point\n "+ e.getMessage());
+//                                    });
+//                }
+//                @Override
+//                public void onEndpointLost(@NonNull String endpointId) {
+//                    // A previously discovered endpoint has gone away.
+//                }
+//            };
     private final ConnectionLifecycleCallback connectionLifecycleCallback =
             new ConnectionLifecycleCallback() {
                 @Override
@@ -150,5 +189,17 @@ public class Advertiser {
             public void onFailure(@NonNull Exception e) {
             }
         });
+    }
+    private void checkForBluetooth()
+    {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_DENIED)
+        {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            {
+                ActivityCompat.requestPermissions(Advertiser.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, 2);
+                return;
+            }
+        }
+
     }
 }

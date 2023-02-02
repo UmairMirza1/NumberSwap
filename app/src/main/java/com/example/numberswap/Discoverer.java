@@ -1,13 +1,30 @@
 package com.example.numberswap;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.os.Looper;
+import android.os.PersistableBundle;
+import android.provider.Settings;
 import android.util.Log;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
@@ -26,20 +43,34 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
-public class Discoverer {
+public class Discoverer extends AppCompatActivity implements Adapter.DeviceInterface {
+
     public static final Strategy STRATEGY = Strategy.P2P_CLUSTER;
-    public static final String SERVICE_ID="6969";
-    private ConnectionsClient connectionsClient;
-    private Context context;
-    TextView textView;
-    private static final String deviceName = "com.example.numberswap";
+    public static final String SERVICE_ID = "6969";
+
+    private  ConnectionsClient connectionsClient;
+    private  Context context;
+
+    Button button;
+    TextView textView,nearbyDevices;
+    ArrayList<Devices> devices = new ArrayList<>();
+    ArrayList<Devices> selectedDevices = new ArrayList<>();
+
+    private static String deviceName = "com.example.numberswap";
+
+    CheckBox selectAllCheckBox;
+    RecyclerView recyclerView;
 
     public Discoverer(Context context) {
         this.context = context;
         connectionsClient = Nearby.getConnectionsClient(context);
+    }
+
+    public Discoverer() {
     }
 
     public TextView getTextView() {
@@ -49,6 +80,20 @@ public class Discoverer {
     public void setTextView(TextView textView) {
         this.textView = textView;
     }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_nearby_devices);
+        nearbyDevices = findViewById(R.id.nearbyDevices);
+        selectAllCheckBox = findViewById(R.id.checkBox);
+        recyclerView = findViewById(R.id.availableDevices);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        button = findViewById(R.id.discoverBtn);
+
+        startDiscovery();
+    }
+
     private final PayloadCallback mPayloadCallback = new PayloadCallback() {
         @Override
         public void onPayloadReceived(@NonNull String s, @NonNull Payload payload) {
@@ -60,6 +105,7 @@ public class Discoverer {
                 Log.d("moja", "Recieved  ");
             }
         }
+
         @Override
         public void onPayloadTransferUpdate(@NonNull String s,
                                             @NonNull PayloadTransferUpdate payloadTransferUpdate) {
@@ -69,39 +115,79 @@ public class Discoverer {
             }
         }
     };
+
     public void startDiscovery() {
+
+        final BluetoothManager manager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
+            startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
+        }
+        deviceName = (manager.getAdapter().getName());
         DiscoveryOptions discoveryOptions =
                 new DiscoveryOptions.Builder().setStrategy(STRATEGY).build();
-        Nearby.getConnectionsClient(context)
+        Nearby.getConnectionsClient(this)
                 .startDiscovery(SERVICE_ID, endpointDiscoveryCallback, discoveryOptions)
                 .addOnSuccessListener(
                         (Void unused) -> {
-                            Log.d("moja", "We're discovering!");// We're discovering!
+                            Toast.makeText(this, "We're discovering!", Toast.LENGTH_SHORT).show();
+                            //Log.d("moja", "We're discovering!");// We're discovering!
+
                         })
                 .addOnFailureListener(
                         (Exception e) -> {
-                            Log.d("moja", "We're  unable to start discovering\n"+e.getMessage());// We're unable to start discovering.
+                            Toast.makeText(this, "We're  unable to start discovering", Toast.LENGTH_SHORT).show();
+                            //Log.d("moja", "We're  unable to start discovering\n" + e.getMessage());// We're unable to start discovering.
                         });
     }
+
     private final EndpointDiscoveryCallback endpointDiscoveryCallback =
             new EndpointDiscoveryCallback() {
                 @Override
                 public void onEndpointFound(@NonNull String endpointId, @NonNull DiscoveredEndpointInfo info) {
+                    Toast.makeText(Discoverer.this, "Found hehe", Toast.LENGTH_SHORT).show();
+                    Log.d("moja", "onEndpointFound: ");
                     // An endpoint was found. We request a connection to it.
-                    Nearby.getConnectionsClient(context)
-                            .requestConnection(deviceName, endpointId, connectionLifecycleCallback)
-                            .addOnSuccessListener(
-                                    (Void unused) -> {
-                                        // We successfully requested a connection. Now both sides
-                                        // must accept before the connection is established.
-                                        Log.d("moja", "requested a connection");
-                                    })
-                            .addOnFailureListener(
-                                    (Exception e) -> {
-                                        Log.d("moja", "failed connection \n"+ e.getMessage() ); // Nearby Connections failed to request the connection.
-                                    });
-                }
+                    if(devices==null)
+                    {
+                        devices = new ArrayList<>();
+                    }
+                    Devices availableDevice = new Devices(endpointId,info.getEndpointName());
+                    devices.add(availableDevice);
+                    nearbyDevices.setText(devices.size()+ " Devices Found");
+                    Adapter adapter = new Adapter(devices,Discoverer.this);
+                    recyclerView.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
+                    button.setOnClickListener(v->
+                    {
+                    if(devices.size()==0)
+                    {
+                        Toast.makeText(Discoverer.this, "No Devices", Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        if (selectedDevices.size() == 0) {
+                            Toast.makeText(Discoverer.this, "No Device Selected", Toast.LENGTH_SHORT).show();
+                        } else {
+                            for (int i = 0; i < selectedDevices.size(); i++) {
+                                Nearby.getConnectionsClient(Discoverer.this)
+                                        //.requestConnection(deviceName, endpointId, connectionLifecycleCallback)
+                                        .requestConnection(selectedDevices.get(i).deviceName, selectedDevices.get(i).id, connectionLifecycleCallback)
+                                        .addOnSuccessListener(
+                                                (Void unused) -> {
+                                                    // We successfully requested a connection. Now both sides
+                                                    // must accept before the connection is established.
 
+                                                    Log.d("moja", "requested a connection");
+                                                })
+                                        .addOnFailureListener(
+                                                (Exception e) -> {
+                                                    Log.d("moja", "failed connection \n" + e.getMessage()); // Nearby Connections failed to request the connection.
+
+                                                });
+                            }
+                        }
+                    }
+                    });
+                }
                 @Override
                 public void onEndpointLost(@NonNull String endpointId) {
                     // A previously discovered endpoint has gone away.
@@ -109,30 +195,31 @@ public class Discoverer {
             };
     private final ConnectionLifecycleCallback connectionLifecycleCallback =
             new ConnectionLifecycleCallback() {
-                    @Override
-                    public void onConnectionInitiated(@NonNull String endpointId, ConnectionInfo info){
-                        new AlertDialog.Builder(context)
-                                .setTitle("Accept connection to " + info.getEndpointName())
-                                .setMessage("Confirm the code matches on both devices: " + info.getAuthenticationDigits())
-                                .setPositiveButton(
-                                        "Accept",
-                                        (DialogInterface dialog, int which) ->
-                                                // The user confirmed, so we can accept the connection.
-                                                Nearby.getConnectionsClient(context)
-                                                        .acceptConnection(endpointId, mPayloadCallback))
-                                .setNegativeButton(
-                                        android.R.string.cancel,
-                                        (DialogInterface dialog, int which) ->
-                                                // The user canceled, so we should reject the connection.
-                                                Nearby.getConnectionsClient(context).rejectConnection(endpointId))
-                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                .show();
-                    }
+                @Override
+                public void onConnectionInitiated(@NonNull String endpointId, ConnectionInfo info) {
+                    new AlertDialog.Builder(Discoverer.this)
+                            .setTitle("Accept connection to " + info.getEndpointName())
+                            .setMessage("Confirm the code matches on both devices: " + info.getAuthenticationDigits())
+                            .setPositiveButton(
+                                    "Accept",
+                                    (DialogInterface dialog, int which) ->
+                                            // The user confirmed, so we can accept the connection.
+                                            Nearby.getConnectionsClient(Discoverer.this)
+                                                    .acceptConnection(endpointId, mPayloadCallback))
+                            .setNegativeButton(
+                                    android.R.string.cancel,
+                                    (DialogInterface dialog, int which) ->
+                                            // The user canceled, so we should reject the connection.
+                                            Nearby.getConnectionsClient(Discoverer.this).rejectConnection(endpointId))
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }
+
                 @Override
                 public void onConnectionResult(@NonNull String endpointId, ConnectionResolution result) {
                     switch (result.getStatus().getStatusCode()) {
                         case ConnectionsStatusCodes.STATUS_OK:
-                            sendPayLoad(endpointId,"hehe");// We're connected! Can now start sending and receiving data.
+                            sendPayLoad(endpointId, "hehe");// We're connected! Can now start sending and receiving data.
                             break;
                         case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                             // The connection was rejected by one or both sides.
@@ -151,18 +238,25 @@ public class Discoverer {
                     // sent or received.
                 }
             };
-public void sendPayLoad(final String endPointId, String data) {
+
+    public void sendPayLoad(final String endPointId, String data) {
         Payload bytesPayload = Payload.fromBytes(data.getBytes(StandardCharsets.UTF_8));
         connectionsClient.sendPayload(endPointId, bytesPayload).addOnSuccessListener(new OnSuccessListener<Void>() {
-@Override
-public void onSuccess(Void aVoid) {
-        Log.d("moja", "Payload Sent");
-        }
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("moja", "Payload Sent");
+            }
         }).addOnFailureListener(new OnFailureListener() {
-@Override
-public void onFailure(@NonNull Exception e) {
-    Log.d("moja", "onFailure : Failed to send Message");
-             }
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("moja", "onFailure : Failed to send Message");
+            }
         });
+    }
+
+    @Override
+    public void getCheckedDevices(Devices devicesList) {
+        selectedDevices.add(devicesList);
+        Toast.makeText(Discoverer.this, "DISCOVER, Devices :  "+selectedDevices.size(), Toast.LENGTH_SHORT).show();
     }
 }

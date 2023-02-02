@@ -21,6 +21,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.messages.MessagesOptions;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         Manifest.permission.CHANGE_WIFI_STATE,
         Manifest.permission.ACCESS_FINE_LOCATION};
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,20 +64,25 @@ public class MainActivity extends AppCompatActivity {
         permissions.add(Manifest.permission.ACCESS_WIFI_STATE);
         permissions.add(Manifest.permission.CHANGE_WIFI_STATE);
         permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+       // permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
 
         statusCheck();
         if(allPermissionsGranted())
         {
             Log.d("moja", "All Permissions are Granted!");
+            Intent intent = new Intent(this,Discoverer.class);
+           // startActivity(intent);
         }
         else
         {
             ActivityCompat.requestPermissions(this,askForPermissions,requestCodePermissions);
+            Toast.makeText(this, "No", Toast.LENGTH_SHORT).show();
         }
-
+        //Intent intent = new Intent(this,Discoverer.class);
+        //startActivity(intent);
         send.setOnClickListener(v->
         {
+            Log.d("moja", "clicked");
             Advertiser advertiser = new Advertiser(this,text.getText().toString());
             advertiser.startAdvertising();
 
@@ -83,9 +90,8 @@ public class MainActivity extends AppCompatActivity {
         });
         receive.setOnClickListener(v->
         {
-            Discoverer discoverer = new Discoverer(this);
-            discoverer.startDiscovery();
-            discoverer.setTextView(receivedText);
+            Intent intent = new Intent(this,Discoverer.class);
+            startActivity(intent);
         });
     }
     private boolean allPermissionsGranted()
@@ -94,7 +100,9 @@ public class MainActivity extends AppCompatActivity {
         {
             if(ContextCompat.checkSelfPermission(this,permission)!=PackageManager.PERMISSION_GRANTED)
             {
+                Toast.makeText(this, "False"+permission, Toast.LENGTH_LONG).show();
                 return false;
+
             }
         }
         return true;

@@ -50,6 +50,11 @@
                 android:name="com.google.android.nearby.messages.API_KEY"
                 android:value="AIzaSyB8Xe4jJjRoGhHKwW9F6GNx9nI2XsSbRIU" />
         </activity>
+        <activity android:name=".Discoverer"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
+
+        </activity>
     </application>
 
 </manifest>
