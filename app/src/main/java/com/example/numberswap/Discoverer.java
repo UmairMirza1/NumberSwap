@@ -1,6 +1,7 @@
 package com.example.numberswap;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -52,11 +53,11 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
     public static final Strategy STRATEGY = Strategy.P2P_CLUSTER;
     public static final String SERVICE_ID = "6969";
 
-    private  ConnectionsClient connectionsClient;
-    private  Context context;
+    private ConnectionsClient connectionsClient;
+    private Context context;
 
     Button button;
-    TextView textView,nearbyDevices;
+    TextView textView, nearbyDevices;
     ArrayList<Devices> devices = new ArrayList<>();
     ArrayList<Devices> selectedDevices = new ArrayList<>();
 
@@ -64,6 +65,7 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
 
     CheckBox selectAllCheckBox;
     RecyclerView recyclerView;
+    Adapter adapter;
 
     public Discoverer(Context context) {
         this.context = context;
@@ -71,14 +73,6 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
     }
 
     public Discoverer() {
-    }
-
-    public TextView getTextView() {
-        return textView;
-    }
-
-    public void setTextView(TextView textView) {
-        this.textView = textView;
     }
 
     @Override
@@ -91,7 +85,22 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         button = findViewById(R.id.discoverBtn);
 
-        startDiscovery();
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //function one or whatever
+                startDiscovery();
+            }
+        });
+        t1.start();
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                Advertiser advertiser = new Advertiser(Discoverer.this,"Hehe boi");
+//                advertiser.startAdvertising();
+//            }
+//        });
+        //startDiscovery();
     }
 
     private final PayloadCallback mPayloadCallback = new PayloadCallback() {
@@ -101,8 +110,9 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
                 final byte[] receivedBytes = payload.asBytes();
 
                 String message = new String(receivedBytes, StandardCharsets.UTF_8);
-                textView.setText(message);
-                Log.d("moja", "Recieved  ");
+//                textView.setText(message);
+//                Log.d("moja", "Recieved  ");
+                Toast.makeText(Discoverer.this, " " + message, Toast.LENGTH_LONG).show();
             }
         }
 
@@ -117,12 +127,7 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
     };
 
     public void startDiscovery() {
-
-        final BluetoothManager manager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
-            startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
-        }
-        deviceName = (manager.getAdapter().getName());
+        setDeviceName();
         DiscoveryOptions discoveryOptions =
                 new DiscoveryOptions.Builder().setStrategy(STRATEGY).build();
         Nearby.getConnectionsClient(this)
@@ -144,53 +149,60 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
             new EndpointDiscoveryCallback() {
                 @Override
                 public void onEndpointFound(@NonNull String endpointId, @NonNull DiscoveredEndpointInfo info) {
-                  
+
 
                     // An endpoint was found. We request a connection to it.
-                    if(devices==null)
-                    {
+                    if (devices == null) {
                         devices = new ArrayList<>();
                     }
-                    Devices availableDevice = new Devices(endpointId,info.getEndpointName());
+                    Devices availableDevice = new Devices(endpointId, info.getEndpointName());
                     devices.add(availableDevice);
-
-                    Adapter adapter = new Adapter(devices,Discoverer.this);
+                    nearbyDevices.setText("" + devices.size() + " Devices Found");
+                    adapter = new Adapter(devices, Discoverer.this);
                     recyclerView.setAdapter(adapter);
                     adapter.notifyDataSetChanged();
-                    button.setOnClickListener(v->
+                    button.setOnClickListener(v ->
                     {
-                    if(devices.size()==0)
-                    {
-                        Toast.makeText(Discoverer.this, "No Devices", Toast.LENGTH_SHORT).show();
-                    }
-                    else {
-                        if (selectedDevices.size() == 0) {
-                            Toast.makeText(Discoverer.this, "No Device Selected", Toast.LENGTH_SHORT).show();
+                        if (devices.size() == 0) {
+                            Toast.makeText(Discoverer.this, "No Devices", Toast.LENGTH_SHORT).show();
                         } else {
-                            for (int i = 0; i < selectedDevices.size(); i++) {
-                                Nearby.getConnectionsClient(Discoverer.this)
-                                        //.requestConnection(deviceName, endpointId, connectionLifecycleCallback)
-                                        .requestConnection(selectedDevices.get(i).deviceName, selectedDevices.get(i).id, connectionLifecycleCallback)
-                                        .addOnSuccessListener(
-                                                (Void unused) -> {
-                                                    // We successfully requested a connection. Now both sides
-                                                    // must accept before the connection is established.
+                            if (selectedDevices.size() == 0) {
+                                Toast.makeText(Discoverer.this, "No Device Selected", Toast.LENGTH_SHORT).show();
+                            } else {
+                                for (int i = 0; i < selectedDevices.size(); i++) {
+                                    Nearby.getConnectionsClient(Discoverer.this)
+                                            //.requestConnection(deviceName, endpointId, connectionLifecycleCallback)
+                                            .requestConnection(deviceName, selectedDevices.get(i).id, connectionLifecycleCallback)
+                                            .addOnSuccessListener(
+                                                    (Void unused) -> {
+                                                        // We successfully requested a connection. Now both sides
+                                                        // must accept before the connection is established.
 
-                                                    Log.d("moja", "requested a connection");
-                                                })
-                                        .addOnFailureListener(
-                                                (Exception e) -> {
-                                                    Log.d("moja", "failed connection \n" + e.getMessage()); // Nearby Connections failed to request the connection.
+                                                        Log.d("moja", "requested a connection");
+                                                    })
+                                            .addOnFailureListener(
+                                                    (Exception e) -> {
+                                                        Log.d("moja", "failed connection \n" + e.getMessage()); // Nearby Connections failed to request the connection.
 
-                                                });
+                                                    });
+                                }
                             }
                         }
-                    }
                     });
                 }
+
                 @Override
                 public void onEndpointLost(@NonNull String endpointId) {
                     // A previously discovered endpoint has gone away.
+                   for(int i=0;i<devices.size();i++)
+                   {
+                       if(devices.get(i).id.contains(endpointId))
+                       {
+                           devices.remove(i);
+                           adapter.notifyDataSetChanged();
+                           break;
+                       }
+                   }
                 }
             };
     private final ConnectionLifecycleCallback connectionLifecycleCallback =
@@ -219,7 +231,11 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
                 public void onConnectionResult(@NonNull String endpointId, ConnectionResolution result) {
                     switch (result.getStatus().getStatusCode()) {
                         case ConnectionsStatusCodes.STATUS_OK:
-                            sendPayLoad(endpointId, "hehe");// We're connected! Can now start sending and receiving data.
+                            Log.d("moja", " id: "+endpointId);
+//                            for(int i=0;i<selectedDevices.size();i++) {
+                            sendPayLoad(endpointId, "hehe boi");// We're connected! Can now start sending and receiving data.
+//                                sendPayLoad(selectedDevices.get(i).id, "hehe boi");// We're connected! Can now start sending and receiving data.
+//                            }
                             break;
                         case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                             // The connection was rejected by one or both sides.
@@ -242,7 +258,8 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
 
     public void sendPayLoad(final String endPointId, String data) {
         Payload bytesPayload = Payload.fromBytes(data.getBytes(StandardCharsets.UTF_8));
-        connectionsClient.sendPayload(endPointId, bytesPayload).addOnSuccessListener(new OnSuccessListener<Void>() {
+        Log.d("moja", " id to:  "+endPointId);
+        Nearby.getConnectionsClient(Discoverer.this).sendPayload(endPointId, bytesPayload).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 Log.d("moja", "Payload Sent");
@@ -258,6 +275,12 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
     @Override
     public void getCheckedDevices(Devices devicesList) {
         selectedDevices.add(devicesList);
-        Toast.makeText(Discoverer.this, "DISCOVER, Devices :  "+selectedDevices.size(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(Discoverer.this, "DISCOVER, Devices :  "+selectedDevices.size(), Toast.LENGTH_SHORT).show();
+    }
+
+    @SuppressLint("MissingPermission")
+    private void setDeviceName() {
+        final BluetoothManager manager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        deviceName = (manager.getAdapter().getName());
     }
 }

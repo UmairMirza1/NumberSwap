@@ -3,6 +3,7 @@ package com.example.numberswap;
 import static android.content.Context.BLUETOOTH_SERVICE;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -14,6 +15,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -45,26 +47,20 @@ public class Advertiser extends Activity {
     ConnectionsClient connectionsClient;
     Context context;
 
+    TextView textView;
     public static final Strategy STRATEGY = Strategy.P2P_CLUSTER;
     public static final String SERVICE_ID = "6969";
     private static String deviceName = "com.example.numberswap";
 
-    ArrayList<Devices> listOfDevices = new ArrayList<>();
-
-    public void setListOfDevices(ArrayList<Devices> listOfDevices) {
-        this.listOfDevices = listOfDevices;
-    }
 
     public Advertiser(Context context, String message) {
         this.context = context;
         connectionsClient = Nearby.getConnectionsClient(context);
         this.message = message;
     }
-
-    public Advertiser(Context context, ArrayList<Devices> listOfDevices) {
-        this.context = context;
-        this.listOfDevices = listOfDevices;
-        Toast.makeText(context, "Number of Devices : "+listOfDevices.size(), Toast.LENGTH_SHORT).show();
+    public void setTextView(TextView textView)
+    {
+        this.textView = textView;
     }
 
     private final PayloadCallback mPayloadCallback = new PayloadCallback() {
@@ -73,6 +69,7 @@ public class Advertiser extends Activity {
             final byte[] receivedBytes = payload.asBytes();
             String message = new String(receivedBytes, StandardCharsets.UTF_8);
             Log.d("moja", "Recieved Message: " + message);
+            textView.setText(message);
         }
 
         @Override
@@ -81,13 +78,7 @@ public class Advertiser extends Activity {
     };
 
     public void startAdvertising() {
-
-        final BluetoothManager manager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            context.startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
-        }
-        deviceName = (manager.getAdapter().getName());
-
+        setDeviceName();
         AdvertisingOptions advertisingOptions =
                 new AdvertisingOptions.Builder().setStrategy(STRATEGY).build();
         Nearby.getConnectionsClient(context)
@@ -104,31 +95,6 @@ public class Advertiser extends Activity {
                             Log.d("moja", "We were unable to start advertising.\n"+e.getMessage());   // We were unable to start advertising.
                         });
     }
-//    private final EndpointDiscoveryCallback endpointDiscoveryCallback =
-//            new EndpointDiscoveryCallback() {
-//                @Override
-//                public void onEndpointFound(@NonNull String endpointId, @NonNull DiscoveredEndpointInfo info) {
-//                    // An endpoint was found. We request a connection to it.
-//                    deviceNames.add(info.getEndpointName());
-//                    Nearby.getConnectionsClient(context)
-//                            .requestConnection(deviceName, endpointId, connectionLifecycleCallback)
-//                            .addOnSuccessListener(
-//                                    (Void unused) -> {
-//                                        // We successfully requested a connection. Now both sides
-//                                        // must accept before the connection is established.
-//                                        Log.d("moja", "checking for end point");
-//                                    })
-//                            .addOnFailureListener(
-//                                    (Exception e) -> {
-//                                        // Nearby Connections failed to request the connection.
-//                                        Log.d("moja", "Error checking for end point\n "+ e.getMessage());
-//                                    });
-//                }
-//                @Override
-//                public void onEndpointLost(@NonNull String endpointId) {
-//                    // A previously discovered endpoint has gone away.
-//                }
-//            };
     private final ConnectionLifecycleCallback connectionLifecycleCallback =
             new ConnectionLifecycleCallback() {
                 @Override
@@ -190,16 +156,10 @@ public class Advertiser extends Activity {
             }
         });
     }
-    private void checkForBluetooth()
+    @SuppressLint("MissingPermission")
+    private void setDeviceName()
     {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_DENIED)
-        {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-            {
-                ActivityCompat.requestPermissions(Advertiser.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, 2);
-                return;
-            }
-        }
-
+        final BluetoothManager manager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        deviceName = (manager.getAdapter().getName());
     }
 }

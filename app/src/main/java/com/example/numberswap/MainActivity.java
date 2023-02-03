@@ -32,7 +32,8 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     private static final String[] REQUIRED_PERMISSIONS;
     static {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+        {
             REQUIRED_PERMISSIONS =
                     new String[] {
                             Manifest.permission.BLUETOOTH_SCAN,
@@ -43,7 +44,9 @@ public class MainActivity extends AppCompatActivity {
                             Manifest.permission.ACCESS_COARSE_LOCATION,
                             Manifest.permission.ACCESS_FINE_LOCATION,
                     };
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        }
+        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+        {
             REQUIRED_PERMISSIONS =
                     new String[] {
                             Manifest.permission.BLUETOOTH,
@@ -53,7 +56,8 @@ public class MainActivity extends AppCompatActivity {
                             Manifest.permission.ACCESS_COARSE_LOCATION,
                             Manifest.permission.ACCESS_FINE_LOCATION,
                     };
-        } else {
+        }
+        else {
             REQUIRED_PERMISSIONS =
                     new String[] {
                             Manifest.permission.BLUETOOTH,
@@ -69,19 +73,6 @@ public class MainActivity extends AppCompatActivity {
     EditText text;
     Button send,receive;
     TextView receivedText;
-
-    ArrayList<String> permissions;
-
-//    private final int requestCodePermissions = 1001;
-//
-//    String [] askForPermissions =
-//            {Manifest.permission.ACCESS_COARSE_LOCATION,
-//        Manifest.permission.BLUETOOTH,
-//        Manifest.permission.BLUETOOTH_ADMIN,
-//        Manifest.permission.ACCESS_WIFI_STATE,
-//        Manifest.permission.CHANGE_WIFI_STATE,
-//        Manifest.permission.ACCESS_FINE_LOCATION};
-
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,46 +83,24 @@ public class MainActivity extends AppCompatActivity {
         receive = findViewById(R.id.button2);
         receivedText = findViewById(R.id.receivedText);
 
-//        permissions = new ArrayList<>();
-//        permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-//        permissions.add(Manifest.permission.BLUETOOTH);
-//        permissions.add(Manifest.permission.BLUETOOTH_ADMIN);
-//        permissions.add(Manifest.permission.ACCESS_WIFI_STATE);
-//        permissions.add(Manifest.permission.CHANGE_WIFI_STATE);
-//        permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-       // permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
-
-//        statusCheck();
-//        if(allPermissionsGranted())
-//        {
-//            Log.d("moja", "All Permissions are Granted!");
-//            Intent intent = new Intent(this,Discoverer.class);
-//           // startActivity(intent);
-//        }
-//        else
-//        {
-//            ActivityCompat.requestPermissions(this,askForPermissions,requestCodePermissions);
-//            Toast.makeText(this, "No", Toast.LENGTH_SHORT).show();
-//        }
-        //Intent intent = new Intent(this,Discoverer.class);
-        //startActivity(intent);
+        statusCheck();
 
         if (!hasPermissions(this, getRequiredPermissions())) {
             if (Build.VERSION.SDK_INT < 23) {
                 ActivityCompat.requestPermissions(
                         this, getRequiredPermissions(), REQUEST_CODE_REQUIRED_PERMISSIONS);
-            } else {
+            }
+            else {
                 requestPermissions(getRequiredPermissions(), REQUEST_CODE_REQUIRED_PERMISSIONS);
             }
         }
-
-
-
         send.setOnClickListener(v->
         {
             Log.d("moja", "clicked");
             Advertiser advertiser = new Advertiser(this,text.getText().toString());
+            advertiser.setTextView(receivedText);
             advertiser.startAdvertising();
+
 
 
         });
@@ -141,19 +110,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
     }
-    private boolean allPermissionsGranted()
-    {
-        for (String permission : permissions)
-        {
-            if(ContextCompat.checkSelfPermission(this,permission)!=PackageManager.PERMISSION_GRANTED)
-            {
-                Toast.makeText(this, "False"+permission, Toast.LENGTH_LONG).show();
-                return false;
-
-            }
-        }
-        return true;
-    }
     public void statusCheck() {
         final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
@@ -162,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-
     private void buildAlertMessageNoGps() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Your GPS seems to be disabled, Turn it on to start Discovering")
