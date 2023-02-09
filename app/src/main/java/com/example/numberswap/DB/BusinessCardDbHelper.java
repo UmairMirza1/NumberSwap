@@ -15,12 +15,23 @@ public class BusinessCardDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        // TODO: Create the database
+
+        String createBusinessCardTable = "CREATE TABLE BusinessCard (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "name TEXT," +
+                "email TEXT," +
+                "phone TEXT," +
+                "image BLOB" +
+                ");";
+
+        sqLiteDatabase.execSQL(createBusinessCardTable);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-        // TODO: Upgrade the database
+
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS BusinessCard");
+        onCreate(sqLiteDatabase);
     }
 
 
