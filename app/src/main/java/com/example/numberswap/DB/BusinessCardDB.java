@@ -36,7 +36,13 @@ public class BusinessCardDB implements IBusinessCardDAO {
 
         while (keys.hasMoreElements()) {
             String key = keys.nextElement();
-            content.put(key, attributes.get(key));
+            if(!key.equals("image")) {
+                content.put(key, attributes.get(key));
+            }
+            else {
+                content.put(key, attributes.get(key));
+            }
+
         }
 
         long result = db.insert("BusinessCard", null, content);
