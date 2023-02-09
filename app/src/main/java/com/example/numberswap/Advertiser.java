@@ -68,7 +68,7 @@ public class Advertiser extends Activity {
         public void onPayloadReceived(@NonNull String s, @NonNull Payload payload) {
             final byte[] receivedBytes = payload.asBytes();
             String message = new String(receivedBytes, StandardCharsets.UTF_8);
-            Log.d("moja", "Recieved Message: " + message);
+            Log.d("moja", "Recieved Message advertiser : " + message);
             textView.setText(message);
         }
 
@@ -99,22 +99,10 @@ public class Advertiser extends Activity {
             new ConnectionLifecycleCallback() {
                 @Override
                 public void onConnectionInitiated(@NonNull String endpointId, @NonNull ConnectionInfo connectionInfo) {
-                    new AlertDialog.Builder(context)
-                            .setTitle("Accept connection to " + connectionInfo.getEndpointName())
-                            .setMessage("Confirm the code matches on both devices: " + connectionInfo.getAuthenticationDigits())
-                            .setPositiveButton(
-                                    "Accept",
-                                    (DialogInterface dialog, int which) ->
-                                            // The user confirmed, so we can accept the connection.
-                                            Nearby.getConnectionsClient(context)
-                                                    .acceptConnection(endpointId, mPayloadCallback))
-                            .setNegativeButton(
-                                    android.R.string.cancel,
-                                    (DialogInterface dialog, int which) ->
-                                            // The user canceled, so we should reject the connection.
-                                            Nearby.getConnectionsClient(context).rejectConnection(endpointId))
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .show();
+                                  // The user confirmed, so we can accept the connection.
+                                           Nearby.getConnectionsClient(context)
+                                                    .acceptConnection(endpointId, mPayloadCallback);
+
                 }
 
                 @Override

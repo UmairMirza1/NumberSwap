@@ -121,7 +121,7 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
                                             @NonNull PayloadTransferUpdate payloadTransferUpdate) {
             if (payloadTransferUpdate.getStatus() == PayloadTransferUpdate.Status.SUCCESS) {
                 // Do something with is here...
-                Log.d("moja", "PayLoad Received ");
+                Log.d("moja", "PayLoad Sent noice ");
             }
         }
     };
@@ -194,10 +194,12 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
                 @Override
                 public void onEndpointLost(@NonNull String endpointId) {
                     // A previously discovered endpoint has gone away.
+                    Log.d("moja", "onEndpointLost: ");
                    for(int i=0;i<devices.size();i++)
                    {
-                       if(devices.get(i).id.contains(endpointId))
+                       if(devices.get(i).id.equals(endpointId))
                        {
+                           Toast.makeText(Discoverer.this, "Lost", Toast.LENGTH_SHORT).show();
                            devices.remove(i);
                            adapter.notifyDataSetChanged();
                            break;
@@ -209,22 +211,11 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
             new ConnectionLifecycleCallback() {
                 @Override
                 public void onConnectionInitiated(@NonNull String endpointId, ConnectionInfo info) {
-                    new AlertDialog.Builder(Discoverer.this)
-                            .setTitle("Accept connection to " + info.getEndpointName())
-                            .setMessage("Confirm the code matches on both devices: " + info.getAuthenticationDigits())
-                            .setPositiveButton(
-                                    "Accept",
-                                    (DialogInterface dialog, int which) ->
-                                            // The user confirmed, so we can accept the connection.
+//
+//                                            // The user confirmed, so we can accept the connection.
                                             Nearby.getConnectionsClient(Discoverer.this)
-                                                    .acceptConnection(endpointId, mPayloadCallback))
-                            .setNegativeButton(
-                                    android.R.string.cancel,
-                                    (DialogInterface dialog, int which) ->
-                                            // The user canceled, so we should reject the connection.
-                                            Nearby.getConnectionsClient(Discoverer.this).rejectConnection(endpointId))
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .show();
+                                                    .acceptConnection(endpointId, mPayloadCallback);
+//
                 }
 
                 @Override
@@ -233,7 +224,7 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
                         case ConnectionsStatusCodes.STATUS_OK:
                             Log.d("moja", " id: "+endpointId);
 //                            for(int i=0;i<selectedDevices.size();i++) {
-                            sendPayLoad(endpointId, "hehe boi");// We're connected! Can now start sending and receiving data.
+                            sendPayLoad(endpointId, "noice");// We're connected! Can now start sending and receiving data.
 //                                sendPayLoad(selectedDevices.get(i).id, "hehe boi");// We're connected! Can now start sending and receiving data.
 //                            }
                             break;
@@ -262,7 +253,7 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
         Nearby.getConnectionsClient(Discoverer.this).sendPayload(endPointId, bytesPayload).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Log.d("moja", "Payload Sent");
+                Log.d("moja", "Payload Sent Discover");
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
