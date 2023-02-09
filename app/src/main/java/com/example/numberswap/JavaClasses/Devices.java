@@ -1,4 +1,4 @@
-package com.example.numberswap;
+package com.example.numberswap.JavaClasses;
 
 public class Devices {
     String id,deviceName;

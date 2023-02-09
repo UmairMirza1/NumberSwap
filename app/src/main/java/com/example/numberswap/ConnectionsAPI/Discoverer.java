@@ -1,19 +1,11 @@
-package com.example.numberswap;
+package com.example.numberswap.ConnectionsAPI;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Looper;
-import android.os.PersistableBundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -23,10 +15,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.numberswap.Adapter.Adapter;
+import com.example.numberswap.JavaClasses.Devices;
+import com.example.numberswap.R;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
@@ -45,8 +39,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
 
 public class Discoverer extends AppCompatActivity implements Adapter.DeviceInterface {
 
@@ -121,7 +113,7 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
                                             @NonNull PayloadTransferUpdate payloadTransferUpdate) {
             if (payloadTransferUpdate.getStatus() == PayloadTransferUpdate.Status.SUCCESS) {
                 // Do something with is here...
-                Log.d("moja", "PayLoad Sent noice ");
+                Log.d("moja", "PayLoad Received ");
             }
         }
     };
@@ -172,7 +164,7 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
                                 for (int i = 0; i < selectedDevices.size(); i++) {
                                     Nearby.getConnectionsClient(Discoverer.this)
                                             //.requestConnection(deviceName, endpointId, connectionLifecycleCallback)
-                                            .requestConnection(deviceName, selectedDevices.get(i).id, connectionLifecycleCallback)
+                                            .requestConnection(deviceName, selectedDevices.get(i).getId(), connectionLifecycleCallback)
                                             .addOnSuccessListener(
                                                     (Void unused) -> {
                                                         // We successfully requested a connection. Now both sides
@@ -194,12 +186,10 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
                 @Override
                 public void onEndpointLost(@NonNull String endpointId) {
                     // A previously discovered endpoint has gone away.
-                    Log.d("moja", "onEndpointLost: ");
                    for(int i=0;i<devices.size();i++)
                    {
-                       if(devices.get(i).id.equals(endpointId))
+                       if(devices.get(i).getId().contains(endpointId))
                        {
-                           Toast.makeText(Discoverer.this, "Lost", Toast.LENGTH_SHORT).show();
                            devices.remove(i);
                            adapter.notifyDataSetChanged();
                            break;
@@ -211,11 +201,22 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
             new ConnectionLifecycleCallback() {
                 @Override
                 public void onConnectionInitiated(@NonNull String endpointId, ConnectionInfo info) {
-//
-//                                            // The user confirmed, so we can accept the connection.
+                    new AlertDialog.Builder(Discoverer.this)
+                            .setTitle("Accept connection to " + info.getEndpointName())
+                            .setMessage("Confirm the code matches on both devices: " + info.getAuthenticationDigits())
+                            .setPositiveButton(
+                                    "Accept",
+                                    (DialogInterface dialog, int which) ->
+                                            // The user confirmed, so we can accept the connection.
                                             Nearby.getConnectionsClient(Discoverer.this)
-                                                    .acceptConnection(endpointId, mPayloadCallback);
-//
+                                                    .acceptConnection(endpointId, mPayloadCallback))
+                            .setNegativeButton(
+                                    android.R.string.cancel,
+                                    (DialogInterface dialog, int which) ->
+                                            // The user canceled, so we should reject the connection.
+                                            Nearby.getConnectionsClient(Discoverer.this).rejectConnection(endpointId))
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
                 }
 
                 @Override
@@ -224,7 +225,7 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
                         case ConnectionsStatusCodes.STATUS_OK:
                             Log.d("moja", " id: "+endpointId);
 //                            for(int i=0;i<selectedDevices.size();i++) {
-                            sendPayLoad(endpointId, "noice");// We're connected! Can now start sending and receiving data.
+                            sendPayLoad(endpointId, "hehe boi");// We're connected! Can now start sending and receiving data.
 //                                sendPayLoad(selectedDevices.get(i).id, "hehe boi");// We're connected! Can now start sending and receiving data.
 //                            }
                             break;
@@ -253,7 +254,7 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
         Nearby.getConnectionsClient(Discoverer.this).sendPayload(endPointId, bytesPayload).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Log.d("moja", "Payload Sent Discover");
+                Log.d("moja", "Payload Sent");
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
