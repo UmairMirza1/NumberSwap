@@ -1,10 +1,12 @@
-package com.example.numberswap;
+package com.example.numberswap.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-public class NearbyDevices extends AppCompatActivity {
+import com.example.numberswap.R;
+
+public class NearbyDevicesActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

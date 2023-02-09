@@ -1,4 +1,4 @@
-package com.example.numberswap;
+package com.example.numberswap.Adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +9,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.w3c.dom.Text;
+import com.example.numberswap.JavaClasses.Devices;
+import com.example.numberswap.R;
 
 import java.util.ArrayList;
 
@@ -57,7 +58,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.DeviceHolder>{
             checkBox = itemView.findViewById(R.id.check);
         }
     }
-    interface DeviceInterface {
+     public interface DeviceInterface {
         public void getCheckedDevices(Devices devicesList );
     }
 }

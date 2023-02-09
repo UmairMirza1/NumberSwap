@@ -1,19 +1,11 @@
-package com.example.numberswap;
+package com.example.numberswap.ConnectionsAPI;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Looper;
-import android.os.PersistableBundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -23,10 +15,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.numberswap.Adapter.Adapter;
+import com.example.numberswap.JavaClasses.Devices;
+import com.example.numberswap.R;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
@@ -45,8 +39,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
 
 public class Discoverer extends AppCompatActivity implements Adapter.DeviceInterface {
 
@@ -172,7 +164,7 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
                                 for (int i = 0; i < selectedDevices.size(); i++) {
                                     Nearby.getConnectionsClient(Discoverer.this)
                                             //.requestConnection(deviceName, endpointId, connectionLifecycleCallback)
-                                            .requestConnection(deviceName, selectedDevices.get(i).id, connectionLifecycleCallback)
+                                            .requestConnection(deviceName, selectedDevices.get(i).getId(), connectionLifecycleCallback)
                                             .addOnSuccessListener(
                                                     (Void unused) -> {
                                                         // We successfully requested a connection. Now both sides
@@ -196,7 +188,7 @@ public class Discoverer extends AppCompatActivity implements Adapter.DeviceInter
                     // A previously discovered endpoint has gone away.
                    for(int i=0;i<devices.size();i++)
                    {
-                       if(devices.get(i).id.contains(endpointId))
+                       if(devices.get(i).getId().contains(endpointId))
                        {
                            devices.remove(i);
                            adapter.notifyDataSetChanged();

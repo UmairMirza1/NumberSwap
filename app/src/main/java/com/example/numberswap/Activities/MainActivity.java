@@ -1,4 +1,4 @@
-package com.example.numberswap;
+package com.example.numberswap.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -13,8 +13,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,11 +21,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.nearby.Nearby;
-import com.google.android.gms.nearby.messages.MessagesOptions;
-import com.google.android.gms.nearby.messages.NearbyPermissions;
-
-import java.util.ArrayList;
+import com.example.numberswap.ConnectionsAPI.Advertiser;
+import com.example.numberswap.ConnectionsAPI.Discoverer;
+import com.example.numberswap.R;
 
 public class MainActivity extends AppCompatActivity {
     private static final String[] REQUIRED_PERMISSIONS;
@@ -106,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         });
         receive.setOnClickListener(v->
         {
-            Intent intent = new Intent(this,Discoverer.class);
+            Intent intent = new Intent(this, Discoverer.class);
             startActivity(intent);
         });
     }

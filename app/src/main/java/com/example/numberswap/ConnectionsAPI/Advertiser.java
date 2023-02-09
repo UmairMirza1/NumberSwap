@@ -1,4 +1,4 @@
-package com.example.numberswap;
+package com.example.numberswap.ConnectionsAPI;
 
 import static android.content.Context.BLUETOOTH_SERVICE;
 
