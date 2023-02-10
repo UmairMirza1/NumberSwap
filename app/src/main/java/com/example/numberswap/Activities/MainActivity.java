@@ -92,7 +92,8 @@ public class MainActivity extends AppCompatActivity {
         }
         else
         {
-            Intent intent = new Intent(MainActivity.this,CreateAccountActivity.class);
+            //Intent intent = new Intent(MainActivity.this,CreateAccountActivity.class);
+            Intent intent = new Intent(MainActivity.this,Accounts.class);
             startActivity(intent);
         }
         send.setOnClickListener(v->

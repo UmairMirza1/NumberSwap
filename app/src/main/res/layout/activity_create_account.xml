@@ -60,7 +60,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
     <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/imageView6"
+        android:id="@+id/displayPicture"
         android:layout_width="106dp"
         android:layout_height="106dp"
         android:layout_marginTop="40dp"
@@ -84,7 +84,7 @@
         android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView6" />
+        app:layout_constraintTop_toBottomOf="@+id/displayPicture" />
 
     <TextView
         android:id="@+id/textView5"
@@ -118,6 +118,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:background="@drawable/border"
+        app:ccpDialog_textColor="@color/white"
         android:paddingTop="6dp"
         android:paddingBottom="6dp"
         android:layout_marginStart="24dp"
@@ -126,6 +127,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView6" />
 
     <EditText
+        android:id="@+id/personPhone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
@@ -157,7 +159,7 @@
         app:layout_constraintTop_toBottomOf="@+id/ccp" />
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/editTextDOB"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -187,6 +189,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextDOB" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

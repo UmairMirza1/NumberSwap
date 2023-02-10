@@ -141,4 +141,16 @@ public class BusinessCardDB implements IBusinessCardDAO {
 
         return objects;
     }
+
+    @Override
+    public Cursor loadCards() {
+            String query = "SELECT * FROM BusinessCard";
+            SQLiteDatabase db = BusinessCardDBHelper.getReadableDatabase();
+            Cursor cursor = null;
+            if(db != null)
+            {
+                cursor = db.rawQuery(query,null);
+            }
+            return cursor;
+        }
 }

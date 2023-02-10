@@ -21,6 +21,7 @@ public class BusinessCardDbHelper extends SQLiteOpenHelper {
                 "name TEXT," +
                 "email TEXT," +
                 "phone TEXT," +
+                "DOB TEXT," +
                 "image TEXT" +
                 ");";
 

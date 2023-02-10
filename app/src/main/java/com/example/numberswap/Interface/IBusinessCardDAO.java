@@ -1,5 +1,6 @@
 package com.example.numberswap.Interface;
 
+import android.database.Cursor;
 import android.graphics.Bitmap;
 
 import java.util.ArrayList;
@@ -16,6 +17,8 @@ public interface IBusinessCardDAO {
     Hashtable<String, String> getBusinessCard(String id);
 
     ArrayList<Hashtable<String, String>> getAllBusinessCards();
+
+    Cursor loadCards();
 
 
 }
