@@ -90,6 +90,11 @@ public class MainActivity extends AppCompatActivity {
                 requestPermissions(getRequiredPermissions(), REQUEST_CODE_REQUIRED_PERMISSIONS);
             }
         }
+        else
+        {
+            Intent intent = new Intent(MainActivity.this,CreateAccountActivity.class);
+            startActivity(intent);
+        }
         send.setOnClickListener(v->
         {
             Log.d("moja", "clicked");
