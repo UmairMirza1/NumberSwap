@@ -167,6 +167,7 @@
         android:layout_marginEnd="24dp"
         android:background="@drawable/border"
         android:hint="mm-dd-yy"
+        android:inputType="date"
         android:padding="15dp"
         android:textColor="@color/black"
         android:textColorHint="@color/black"
