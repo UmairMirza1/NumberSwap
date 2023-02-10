@@ -1,5 +1,7 @@
 package com.example.numberswap.Interface;
 
+import android.graphics.Bitmap;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
 

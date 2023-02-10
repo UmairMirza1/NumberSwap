@@ -5,9 +5,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.widget.Toast;
 
 import com.example.numberswap.Interface.IBusinessCardDAO;
+import com.example.numberswap.Util.Utility;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -20,7 +22,7 @@ public class BusinessCardDB implements IBusinessCardDAO {
     private BusinessCardDbHelper BusinessCardDBHelper;
 
     public BusinessCardDB(Context context) {
-         this.Context = context;
+        this.Context = context;
         BusinessCardDBHelper = new BusinessCardDbHelper(context);
     }
 
@@ -32,21 +34,15 @@ public class BusinessCardDB implements IBusinessCardDAO {
 
         Enumeration<String> keys = attributes.keys();
 
-        // TODO: Fix for image
-
         while (keys.hasMoreElements()) {
             String key = keys.nextElement();
-            if(!key.equals("image")) {
-                content.put(key, attributes.get(key));
-            }
-            else {
-                content.put(key, attributes.get(key));
-            }
+            content.put(key, attributes.get(key));
 
         }
+        //content.put("image", Utility.getByteArrayFromImage(image));
 
         long result = db.insert("BusinessCard", null, content);
-       // System.out.println(result == -1 ? "Business Card Not Added" : "Business Card Added");
+        // System.out.println(result == -1 ? "Business Card Not Added" : "Business Card Added");
         Toast.makeText(Context.getApplicationContext(), result == -1 ? "Business Card Not Added" : "Business Card Added", Toast.LENGTH_SHORT).show();
 
     }
@@ -62,12 +58,13 @@ public class BusinessCardDB implements IBusinessCardDAO {
             String key = keys.nextElement();
             content.put(key, attributes.get(key));
         }
+       // content.put("image", Utility.getByteArrayFromImage(image));
 
         String[] arguments = new String[1];
         attributes.get("id");
-       long result= db.update("BusinessCard", content, "id = ?", arguments);
-       //system.out.println(res == -1 ? "Business Card Not Added" : "Business Card Added");
-       Toast.makeText(Context.getApplicationContext(), result == -1 ? "Business Card Not Added" : "Business Card Added", Toast.LENGTH_SHORT).show();
+        long result = db.update("BusinessCard", content, "id = ?", arguments);
+        //system.out.println(res == -1 ? "Business Card Not Added" : "Business Card Added");
+        Toast.makeText(Context.getApplicationContext(), result == -1 ? "Business Card Not Added" : "Business Card Added", Toast.LENGTH_SHORT).show();
 
 
     }
@@ -81,7 +78,6 @@ public class BusinessCardDB implements IBusinessCardDAO {
         Toast.makeText(Context.getApplicationContext(), result == -1 ? "Business Card Not Added" : "Business Card Added", Toast.LENGTH_SHORT).show();
 
 
-
     }
 
     @SuppressLint("Range")
@@ -93,20 +89,27 @@ public class BusinessCardDB implements IBusinessCardDAO {
         String query = "SELECT * FROM BusinessCard WHERE id = ?";
         String[] arguments = new String[1];
         arguments[0] = id;
-        Cursor cursor = db.rawQuery(query,arguments);
+        Cursor cursor = db.rawQuery(query, arguments);
 
-        Hashtable<String,String> obj = new Hashtable<String, String>();
-        while(cursor.moveToNext()){
-            String [] columns = cursor.getColumnNames();
+        Hashtable<String, String> obj = new Hashtable<String, String>();
+        while (cursor.moveToNext()) {
+            String[] columns = cursor.getColumnNames();
+            for (String col : columns) {
+                // check if the column is image
 
-            for(String col : columns){
-                obj.put(col.toLowerCase(),cursor.getString(cursor.getColumnIndex(col)));
+                if (col.toLowerCase().equals("image")) {
+                   // obj.put(col.toLowerCase(), Utility.getImageFromByteArray(cursor.getBlob(cursor.getColumnIndex(col))));
+                }
+                else {
+                    obj.put(col.toLowerCase(), cursor.getString(cursor.getColumnIndex(col)));
+                }
+
+
             }
         }
+        // TODO: Fix for image
 
         return obj;
-
-
 
 
     }
@@ -118,18 +121,20 @@ public class BusinessCardDB implements IBusinessCardDAO {
 
         SQLiteDatabase db = BusinessCardDBHelper.getReadableDatabase();
         String query = "SELECT * FROM BusinessCard ";
-        Cursor cursor = db.rawQuery(query,null);
+        Cursor cursor = db.rawQuery(query, null);
 
-        ArrayList<Hashtable<String,String>> objects = new ArrayList<Hashtable<String, String>>();
-        while(cursor.moveToNext()){
+        ArrayList<Hashtable<String, String>> objects = new ArrayList<Hashtable<String, String>>();
+        while (cursor.moveToNext()) {
 
-            Hashtable<String,String> obj = new Hashtable<String, String>();
+            Hashtable<String, String> obj = new Hashtable<String, String>();
 
-            String [] columns = cursor.getColumnNames();
+            String[] columns = cursor.getColumnNames();
 
-            for(String col : columns){
+            for (String col : columns) {
 
-                obj.put(col.toLowerCase(),cursor.getString(cursor.getColumnIndex(col)));}
+                obj.put(col.toLowerCase(), cursor.getString(cursor.getColumnIndex(col)));
+
+            }
 
             objects.add(obj);
         }
