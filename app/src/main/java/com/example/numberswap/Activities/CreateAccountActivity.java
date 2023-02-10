@@ -1,13 +1,25 @@
 package com.example.numberswap.Activities;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.example.numberswap.R;
 import com.hbb20.CountryCodePicker;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class CreateAccountActivity extends AppCompatActivity {
 
@@ -27,7 +39,10 @@ public class CreateAccountActivity extends AppCompatActivity {
         countryCodePicker = findViewById(R.id.ccp);
         selectedCode = countryCodePicker.getSelectedCountryCode();
 
-
+        displayPicture.setOnClickListener(v->
+        {
+           imageChooser();
+        });
 //        setViews();
 //        setListeners();
     }
@@ -38,5 +53,32 @@ public class CreateAccountActivity extends AppCompatActivity {
 
     private void setViews() {
     }
+    private void imageChooser()
+    {
+        Intent i = new Intent();
+        i.setType("image/*");
+        i.setAction(Intent.ACTION_GET_CONTENT);
 
+        launchSomeActivity.launch(i);
+    }
+
+    ActivityResultLauncher<Intent> launchSomeActivity
+            = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Intent data = result.getData();
+                    // do your operation from here....
+                    if (data != null && data.getData() != null) {
+                        Uri selectedImageUri = data.getData();
+                        Bitmap selectedImageBitmap = null;
+                        try {
+                            selectedImageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
+                        }
+                        catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        displayPicture.setImageBitmap(selectedImageBitmap);
+                    }
+                }
+            });
 }
