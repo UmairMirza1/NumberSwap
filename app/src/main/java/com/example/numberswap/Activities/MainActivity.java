@@ -5,6 +5,9 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -16,14 +19,21 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.numberswap.ConnectionsAPI.Advertiser;
 import com.example.numberswap.ConnectionsAPI.Discoverer;
+import com.example.numberswap.Fragments.AccountFragment;
+import com.example.numberswap.Fragments.DiscoverFragment;
 import com.example.numberswap.R;
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 
 public class MainActivity extends AppCompatActivity {
     private static final String[] REQUIRED_PERMISSIONS;
@@ -66,20 +76,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private static final int REQUEST_CODE_REQUIRED_PERMISSIONS = 1;
-    EditText text;
-    Button send,receive;
-    TextView receivedText;
+
+    FrameLayout frameLayout;
+    BottomNavigationView bottomNavigationView;
+
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        text = findViewById(R.id.input);
-        send = findViewById(R.id.button);
-        receive = findViewById(R.id.button2);
-        receivedText = findViewById(R.id.receivedText);
-
+        frameLayout = findViewById(R.id.frameLayout);
+        bottomNavigationView = findViewById(R.id.bottomNav);
         statusCheck();
+        replaceFragment(new AccountFragment(MainActivity.this));
+        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch(item.getItemId()){
+                    case R.id.devices:
+                        replaceFragment(new DiscoverFragment(MainActivity.this));
+                        break;
+                    case R.id.accounts:
+                        replaceFragment(new AccountFragment(MainActivity.this));
+                        break;
+                }
+                return true;
+            }
+        });
 
         if (!hasPermissions(this, getRequiredPermissions())) {
             if (Build.VERSION.SDK_INT < 23) {
@@ -90,27 +113,13 @@ public class MainActivity extends AppCompatActivity {
                 requestPermissions(getRequiredPermissions(), REQUEST_CODE_REQUIRED_PERMISSIONS);
             }
         }
-        else
-        {
-            //Intent intent = new Intent(MainActivity.this,CreateAccountActivity.class);
-            Intent intent = new Intent(MainActivity.this,Accounts.class);
-            startActivity(intent);
-        }
-        send.setOnClickListener(v->
-        {
-            Log.d("moja", "clicked");
-            Advertiser advertiser = new Advertiser(this,text.getText().toString());
-            advertiser.setTextView(receivedText);
-            advertiser.startAdvertising();
-
-
-
-        });
-        receive.setOnClickListener(v->
-        {
-            Intent intent = new Intent(this, Discoverer.class);
-            startActivity(intent);
-        });
+    }
+    private void replaceFragment(Fragment fragment)
+    {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.frameLayout,fragment);
+        fragmentTransaction.commit();
     }
     public void statusCheck() {
         final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
