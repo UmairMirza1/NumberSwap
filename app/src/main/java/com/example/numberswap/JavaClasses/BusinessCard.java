@@ -141,6 +141,7 @@ public class BusinessCard implements Serializable {
         if(cursor.getCount() == 0)
         {
             Toast.makeText(context,"No Data",Toast.LENGTH_SHORT).show();
+            return list;
         }
         else
         {

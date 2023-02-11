@@ -85,8 +85,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         frameLayout = findViewById(R.id.frameLayout);
         bottomNavigationView = findViewById(R.id.bottomNav);
+
+        if (!hasPermissions(this, getRequiredPermissions())) {
+            if (Build.VERSION.SDK_INT < 23) {
+                ActivityCompat.requestPermissions(
+                        this, getRequiredPermissions(), REQUEST_CODE_REQUIRED_PERMISSIONS);
+            }
+            else {
+                requestPermissions(getRequiredPermissions(), REQUEST_CODE_REQUIRED_PERMISSIONS);
+            }
+        }
         statusCheck();
-        replaceFragment(new AccountFragment(MainActivity.this));
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -101,16 +110,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-
-        if (!hasPermissions(this, getRequiredPermissions())) {
-            if (Build.VERSION.SDK_INT < 23) {
-                ActivityCompat.requestPermissions(
-                        this, getRequiredPermissions(), REQUEST_CODE_REQUIRED_PERMISSIONS);
-            }
-            else {
-                requestPermissions(getRequiredPermissions(), REQUEST_CODE_REQUIRED_PERMISSIONS);
-            }
-        }
     }
     private void replaceFragment(Fragment fragment)
     {
@@ -124,8 +123,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             buildAlertMessageNoGps();
-
         }
+        replaceFragment(new AccountFragment(MainActivity.this));
     }
     private void buildAlertMessageNoGps() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
