@@ -17,6 +17,7 @@ import android.widget.Button;
 import com.example.numberswap.Activities.CreateAccountActivity;
 import com.example.numberswap.Activities.SetUpAccount;
 import com.example.numberswap.Adapter.AccountsAdapter;
+import com.example.numberswap.ConnectionsAPI.Advertiser;
 import com.example.numberswap.DB.BusinessCardDB;
 import com.example.numberswap.Interface.IBusinessCardDAO;
 import com.example.numberswap.JavaClasses.BusinessCard;
@@ -57,6 +58,11 @@ public class AccountFragment extends Fragment {
 
         addAccount.setOnClickListener(v->{
             Intent intent = new Intent(context, CreateAccountActivity.class);
+            startActivity(intent);
+        });
+
+        receive.setOnClickListener(v->{
+            Intent intent = new Intent(context, Advertiser.class);
             startActivity(intent);
         });
         return view;
