@@ -26,8 +26,6 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.numberswap.ConnectionsAPI.Advertiser;
-import com.example.numberswap.ConnectionsAPI.Discoverer;
 import com.example.numberswap.Fragments.AccountFragment;
 import com.example.numberswap.Fragments.DiscoverFragment;
 import com.example.numberswap.R;

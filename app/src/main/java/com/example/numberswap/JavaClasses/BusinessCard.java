@@ -15,50 +15,10 @@ public class BusinessCard implements Serializable {
     private String Email;
     private String phoneNumber;
     private String DateOfBirth;
-
     private String FullName;
-
     private Bitmap image;
-
     private int Id;
-
-    public int getId() {
-        return Id;
-    }
-
-    public void setId(int id) {
-        Id = id;
-    }
-
-    public IBusinessCardDAO getDao() {
-        return dao;
-    }
-
     private IBusinessCardDAO dao;
-
-    public void setDao(IBusinessCardDAO dao) {
-        this.dao = dao;
-    }
-
-    public Bitmap getImage() {
-        return Image;
-    }
-
-    public void setImage(Bitmap image) {
-        Image = image;
-    }
-
-    private Bitmap Image;
-
-    //private ImageView imageView;
-
-    public String getFullName() {
-        return FullName;
-    }
-
-    public void setFullName(String fullName) {
-        FullName = fullName;
-    }
 
     public BusinessCard(String email, String phoneNumber, String dateOfBirth) {
         Email = email;
@@ -66,10 +26,40 @@ public class BusinessCard implements Serializable {
         DateOfBirth = dateOfBirth;
     }
 
+
+    public int getId() {
+        return Id;
+    }
+    public void setId(int id) {
+        Id = id;
+    }
+
+    public IBusinessCardDAO getDao() {
+        return dao;
+    }
+    public void setDao(IBusinessCardDAO dao) {
+        this.dao = dao;
+    }
+
+    public Bitmap getImage() {
+        return image;
+    }
+    public void setImage(Bitmap image) {
+        this.image = image;
+    }
+
+
+    public String getFullName() {
+        return FullName;
+    }
+    public void setFullName(String fullName) {
+        FullName = fullName;
+    }
+
+
     public String getEmail() {
         return Email;
     }
-
     public void setEmail(String email) {
         Email = email;
     }
@@ -77,7 +67,6 @@ public class BusinessCard implements Serializable {
     public String getPhoneNumber() {
         return phoneNumber;
     }
-
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
@@ -85,7 +74,6 @@ public class BusinessCard implements Serializable {
     public String getDateOfBirth() {
         return DateOfBirth;
     }
-
     public void setDateOfBirth(String dateOfBirth) {
         DateOfBirth = dateOfBirth;
     }
@@ -93,19 +81,15 @@ public class BusinessCard implements Serializable {
     public void save(){
         Hashtable<String, String> attributes = new Hashtable<>();
         attributes.put("id", Integer.toString(Id));
+        attributes.put("name", FullName);
         attributes.put("email", Email);
-        attributes.put("phoneNumber", phoneNumber);
-        attributes.put("dateOfBirth", DateOfBirth);
-        attributes.put("fullName", FullName);
+        attributes.put("phone", phoneNumber);
+        attributes.put("DOB", DateOfBirth);
         attributes.put("image", Utility.getStringFromImage(image));
         dao.addBusinessCard(attributes);
     }
 
     public void LoadAll(){
-
         ArrayList<Hashtable<String,String>> AllCards = dao.getAllBusinessCards();
-
-
-
     }
 }

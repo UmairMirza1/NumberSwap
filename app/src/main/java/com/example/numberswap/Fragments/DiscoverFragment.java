@@ -22,7 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.numberswap.Adapter.Adapter;
-import com.example.numberswap.ConnectionsAPI.Discoverer;
 import com.example.numberswap.JavaClasses.Devices;
 import com.example.numberswap.R;
 import com.google.android.gms.nearby.Nearby;

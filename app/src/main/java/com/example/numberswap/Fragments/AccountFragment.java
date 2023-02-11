@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.example.numberswap.Activities.Accounts;
 import com.example.numberswap.Activities.CreateAccountActivity;
 import com.example.numberswap.Activities.SetUpAccount;
 import com.example.numberswap.DB.BusinessCardDB;
@@ -54,8 +53,8 @@ public class AccountFragment extends Fragment {
         Cursor cursor = dbInterface.loadCards();
         if(cursor.getCount() == 0)
         {
-//            Intent intent = new Intent(context, SetUpAccount.class);
-//            startActivity(intent);
+            Intent intent = new Intent(context, SetUpAccount.class);
+            startActivity(intent);
         }
     }
 }
