@@ -140,7 +140,8 @@ public class BusinessCard implements Serializable {
         Cursor cursor = dao.loadCards();
         if(cursor.getCount() == 0)
         {
-            Toast.makeText(context,"No Data",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getContext(),"No Data",Toast.LENGTH_SHORT).show();
+            return new ArrayList<>();
         }
         else
         {
