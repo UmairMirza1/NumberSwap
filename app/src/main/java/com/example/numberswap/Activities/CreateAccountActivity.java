@@ -96,6 +96,9 @@ public class CreateAccountActivity extends AppCompatActivity {
             businessCard.setImage(bm);
             businessCard.setFullName(name.getText().toString());
             businessCard.save();
+
+            startActivity( new Intent(CreateAccountActivity.this, MainActivity.class));
+
         });
     }
     protected void validateFields() {

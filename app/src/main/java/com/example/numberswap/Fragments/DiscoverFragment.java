@@ -137,6 +137,8 @@ public class DiscoverFragment extends Fragment implements Adapter.DeviceInterfac
                     Devices availableDevice = new Devices(endpointId, info.getEndpointName());
                     devices.add(availableDevice);
                     nearbyDevices.setText("" + devices.size() + " Devices Found");
+
+
                     adapter = new Adapter(devices, DiscoverFragment.this);
                     recyclerView.setAdapter(adapter);
                     adapter.notifyDataSetChanged();

@@ -26,6 +26,16 @@ public class BusinessCard implements Serializable {
         DateOfBirth = dateOfBirth;
     }
 
+    public BusinessCard( IBusinessCardDAO dao ){
+        Email = "";
+        phoneNumber = "";
+        DateOfBirth = "";
+        FullName = "";
+        image = null;
+        Id = 0;
+        this.dao = dao;
+
+    }
 
     public int getId() {
         return Id;
@@ -80,7 +90,7 @@ public class BusinessCard implements Serializable {
 
     public void save(){
         Hashtable<String, String> attributes = new Hashtable<>();
-        attributes.put("id", Integer.toString(Id));
+       // attributes.put("id", Integer.toString(Id));
         attributes.put("name", FullName);
         attributes.put("email", Email);
         attributes.put("phone", phoneNumber);
@@ -89,7 +99,18 @@ public class BusinessCard implements Serializable {
         dao.addBusinessCard(attributes);
     }
 
-    public void LoadAll(){
+    public  ArrayList<BusinessCard> LoadAllCards(){
         ArrayList<Hashtable<String,String>> AllCards = dao.getAllBusinessCards();
+
+        ArrayList<BusinessCard> AllBusinessCards = new ArrayList<>();
+        for ( Hashtable<String,String> card : AllCards){
+            BusinessCard businessCard = new BusinessCard(card.get("email"), card.get("phone"), card.get("DOB"));
+            businessCard.setFullName(card.get("name"));
+            businessCard.setImage(Utility.getImageFromString(card.get("image")));
+            businessCard.setDao(dao);
+            AllBusinessCards.add(businessCard);
+        }
+        return AllBusinessCards;
+
     }
 }

@@ -22,7 +22,7 @@ public class BusinessCardDbHelper extends SQLiteOpenHelper {
                 "email TEXT," +
                 "phone TEXT," +
                 "DOB TEXT," +
-                "image TEXT" +
+                "image TEXT NOT NULL" +
                 ");";
 
         sqLiteDatabase.execSQL(createBusinessCardTable);

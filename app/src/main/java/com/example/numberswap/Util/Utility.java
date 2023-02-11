@@ -21,7 +21,7 @@ public class Utility {
 
     }
 
-    public static Bitmap getImagefromString(String string) {
+    public static Bitmap getImageFromString(String string) {
         byte[] byteArray = string.getBytes();
         return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
     }
