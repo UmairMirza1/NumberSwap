@@ -6,12 +6,16 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.numberswap.Interface.IBusinessCardDAO;
+import com.example.numberswap.JavaClasses.BusinessCard;
 import com.example.numberswap.Util.Utility;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -158,5 +162,23 @@ public class BusinessCardDB implements IBusinessCardDAO {
                 cursor = db.rawQuery(query,null);
             }
             return cursor;
+        }
+        @Override
+        public void addCard(BusinessCard card)
+        {
+            SQLiteDatabase db = BusinessCardDBHelper.getWritableDatabase();
+            ContentValues contentValues = new ContentValues();
+            contentValues.put("name",card.getFullName());
+            contentValues.put("email",card.getEmail());
+            contentValues.put("phone",card.getPhoneNumber());
+            contentValues.put("DOB",card.getDateOfBirth());
+            Bitmap image = card.getImage();
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            image.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            byte[] byteArray = stream.toByteArray();
+            contentValues.put("image",byteArray);
+            Log.d("moja", "addCard: "+ Arrays.toString(byteArray));
+            long result = db.insert("BusinessCard", null, contentValues);
+            Toast.makeText(Context.getApplicationContext(), result == -1 ? "Business Card Not Added" : "Business Card Added", Toast.LENGTH_SHORT).show();
         }
 }

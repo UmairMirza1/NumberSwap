@@ -95,7 +95,8 @@ public class CreateAccountActivity extends AppCompatActivity {
             Bitmap bm=((BitmapDrawable)displayPicture.getDrawable()).getBitmap();
             businessCard.setImage(bm);
             businessCard.setFullName(name.getText().toString());
-            businessCard.save();
+            //businessCard.save();
+            db.addCard(businessCard);
 
             startActivity( new Intent(CreateAccountActivity.this, MainActivity.class));
 

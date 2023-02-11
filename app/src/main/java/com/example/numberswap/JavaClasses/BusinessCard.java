@@ -1,7 +1,11 @@
 package com.example.numberswap.JavaClasses;
 
+import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.numberswap.Interface.IBusinessCardDAO;
 import com.example.numberswap.Util.Utility;
@@ -19,6 +23,7 @@ public class BusinessCard implements Serializable {
     private Bitmap image;
     private int Id;
     private IBusinessCardDAO dao;
+    Context context;
 
     public BusinessCard(String email, String phoneNumber, String dateOfBirth) {
         Email = email;
@@ -35,6 +40,22 @@ public class BusinessCard implements Serializable {
         Id = 0;
         this.dao = dao;
 
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public BusinessCard(String email, String phoneNumber, String dateOfBirth, String fullName, Bitmap image) {
+        Email = email;
+        this.phoneNumber = phoneNumber;
+        DateOfBirth = dateOfBirth;
+        FullName = fullName;
+        this.image = image;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
     }
 
     public int getId() {
@@ -112,5 +133,33 @@ public class BusinessCard implements Serializable {
         }
         return AllBusinessCards;
 
+    }
+    public ArrayList<BusinessCard> allData()
+    {
+        ArrayList<BusinessCard> list = new ArrayList<>();
+        Cursor cursor = dao.loadCards();
+        if(cursor.getCount() == 0)
+        {
+            Toast.makeText(context,"No Data",Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+            list = new ArrayList<>();
+            while (cursor.moveToNext())
+            {
+
+                String name = cursor.getString(1);
+                String email = cursor.getString(2);
+                String phone = cursor.getString(3);
+                String dob = cursor.getString(4);
+                byte [] image = cursor.getBlob(5);
+                Bitmap newImage =  BitmapFactory.decodeByteArray(image,0,image.length);
+                BusinessCard businessCard = new BusinessCard(email,phone,dob,name,newImage);
+                list.add(businessCard);
+            }
+
+        }
+        cursor.close();
+        return list;
     }
 }

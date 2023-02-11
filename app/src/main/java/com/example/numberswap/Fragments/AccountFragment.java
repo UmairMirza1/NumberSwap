@@ -47,14 +47,13 @@ public class AccountFragment extends Fragment {
         receive = view.findViewById(R.id.receive);
         addAccount = view.findViewById(R.id.addAcc);
 
+        getAccounts();
         BusinessCard businessCard = new BusinessCard(dbInterface);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        recyclerView.setAdapter(new AccountsAdapter(context,businessCard.LoadAllCards()));
 
-
-
-        getAccounts();
-
+        AccountsAdapter adapter = new AccountsAdapter(context,businessCard.allData());
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
 
         addAccount.setOnClickListener(v->{
             Intent intent = new Intent(context, CreateAccountActivity.class);

@@ -3,6 +3,8 @@ package com.example.numberswap.Interface;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 
+import com.example.numberswap.JavaClasses.BusinessCard;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -19,6 +21,7 @@ public interface IBusinessCardDAO {
     ArrayList<Hashtable<String, String>> getAllBusinessCards();
 
     Cursor loadCards();
+    void addCard(BusinessCard businessCard);
 
 
 }

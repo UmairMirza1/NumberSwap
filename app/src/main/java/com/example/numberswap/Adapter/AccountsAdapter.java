@@ -1,6 +1,7 @@
 package com.example.numberswap.Adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.numberswap.JavaClasses.BusinessCard;
 import com.example.numberswap.R;
 import com.example.numberswap.Util.Utility;
+import com.google.android.material.imageview.ShapeableImageView;
 
 import java.util.ArrayList;
 
@@ -36,6 +38,7 @@ public class AccountsAdapter extends RecyclerView.Adapter<AccountsAdapter.Accoun
     @Override
     public void onBindViewHolder(@NonNull AccountsAdapter.AccountsViewHolder holder, int position) {
         BusinessCard businessCard = list.get(position);
+        Log.d("moja", "onBindViewHolder: "+businessCard.getImage());
         holder.imageView.setImageBitmap(businessCard.getImage());
         holder.date.setText(businessCard.getDateOfBirth());
         holder.email.setText(businessCard.getEmail());
@@ -53,12 +56,13 @@ public class AccountsAdapter extends RecyclerView.Adapter<AccountsAdapter.Accoun
 
     public class AccountsViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView imageView;
+        ShapeableImageView imageView;
+        //ImageView imageView;
         TextView date, email, phone, name;
 
         public AccountsViewHolder(@NonNull View itemView) {
             super(itemView);
-            imageView = itemView.findViewById(R.id.imageView);
+            imageView = itemView.findViewById(R.id.userImage);
             date = itemView.findViewById(R.id.date);
             email = itemView.findViewById(R.id.email);
             phone = itemView.findViewById(R.id.phone);
